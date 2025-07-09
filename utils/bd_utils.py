@@ -22,13 +22,17 @@ def get_db_engine():
         f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}')
     return cloud_engine
 
-def upsert_data(df, table_name, engine, schema, batch_size=10000):
+def update_insert_data(df, table_name, engine, schema, batch_size=10000, skip_repeated_columns=[]):
     """
     Upserts a pandas DataFrame to a SQL table, automatically detecting and using
     single or composite primary keys for the conflict resolution.
     """
     # --- Start of Edits ---
-
+    # Reflect the database schema to get table metadata
+    metadata = MetaData()
+    metadata.reflect(bind=engine, schema=schema)
+    table = metadata.tables[f'{schema}.{table_name}']
+    
     # 1. Dynamically get the primary key columns from the table metadata
     primary_key_columns = [key.name for key in table.primary_key.columns]
 
@@ -39,7 +43,7 @@ def upsert_data(df, table_name, engine, schema, batch_size=10000):
     
 
     # Replace NaN with None for SQL compatibility
-    df = df.replace({np.NaN: None})
+    df = df.replace({np.nan: None})
 
     # Prepare data for insertion
     data = df.to_dict('records')
@@ -72,12 +76,9 @@ def upsert_data(df, table_name, engine, schema, batch_size=10000):
             total_rows += result.rowcount
             print(f"Batch from {start} to {end} upserted, rows inserted/updated = {result.rowcount}")
     
-    end_time = datetime.now()
-    total_time = (end_time - start_time).total_seconds()
-    
     print(f"Total rows inserted/updated = {total_rows}")
 
-def get_data_query_filtered(engine, schema: str, table_name: str, 
+def get_data_bd_query_generic(engine, schema: str, table_name: str, 
                             columns_to_get: list = [], filters: dict = {}, 
                             geq_dict_filter: dict = {}, leq_dict_filter: dict = {}):
     # Check if columns_to_get is empty to select all columns
