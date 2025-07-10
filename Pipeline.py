@@ -37,6 +37,7 @@ FAILURE_WAIT_TIME = 7
 NEW_REQUEST_WAIT_TIME = 0.1
 RECURRENT_DOWNLOAD_WAIT_TIME = 10
 MAX_RETRIES = 2
+MAX_RUN_TIME = 60
 
 weather_api = WeatherAPI()
 
@@ -150,7 +151,7 @@ def download_latest_data():
     
     return failed_stations
 
-def run_pipeline(end_date=None, start_date=None, max_run_time=60):
+def run_pipeline(end_date=None, start_date=None):
     """Run the complete pipeline with simple parameters"""
     if end_date is None:
         end_date = datetime.now()
@@ -177,7 +178,7 @@ def run_pipeline(end_date=None, start_date=None, max_run_time=60):
     
     # Continuous monitoring loop
     iteration_count = 0
-    while time.time() - start_time < max_run_time:
+    while time.time() - start_time < MAX_RUN_TIME:
         iteration_count += 1
         logger.info(f"Starting iteration {iteration_count}")
         

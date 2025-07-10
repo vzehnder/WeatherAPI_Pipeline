@@ -211,6 +211,7 @@ FAILURE_WAIT_TIME = 7          # Seconds to wait after API failures
 NEW_REQUEST_WAIT_TIME = 0.1    # Seconds between API requests
 RECURRENT_DOWNLOAD_WAIT_TIME = 10  # Seconds between continuous downloads
 MAX_RETRIES = 2                # Maximum retry attempts for failed requests
+MAX_RUN_TIME = 60              # Seconds until the pipeline stops
 ```
 
 ## Data Flow
